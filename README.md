@@ -22,7 +22,7 @@ You can setup the requirements via any of the following commands:
 
 1. requirements.txt
 
-   `pip install -r requiremetns.txt`
+   `pip install -r requirements.txt`
 
 2. setup.py
 
