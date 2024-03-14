@@ -17,6 +17,7 @@ feTruth is a tool written in Python that can detect feature envy methods in a Ja
 - Numpy == 1.19.5
 - Gensim == 3.8.0
 - Scikit-learn == 0.24.2
+- Java 11 or newer
 
 You can setup the requirements via any of the following commands:
 
