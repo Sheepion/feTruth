@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-import subprocess
+
 import numpy as np
 from gensim.models import word2vec
 from keras.models import load_model
@@ -193,10 +193,10 @@ def main():
     elif option == '-a':
         check_command()
         project = os.path.basename(sys.argv[2])
-        jar_path = "testingDataGeneration.jar"
-        java_command = ["java", "-jar", jar_path, sys.argv[2]]
-        process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.communicate()
+        # jar_path = "testingDataGeneration.jar"
+        # java_command = ["java", "-jar", jar_path, sys.argv[2]]
+        # process = subprocess.Popen(java_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # process.communicate()
         preprocess_testing_data(project)
         evaluate(project)
     else:

@@ -1,0 +1,9 @@
+1 * * * set destdir * fix cr lf filter fix c r l f 
+2 * * set failure message * * * * parallel * * * * funtest 
+3 * * * set outputproperty * * * * environment * * * * java 
+4 * * * add regexp * * * regular expression * * * * matches 
+5 * * get loader id * * * * delegate * * * def base 
+6 * add strip line breaks * * strip line breaks * * * filter chain 
+7 * * * set update * * * zip scanner * * * * zip 
+8 * * * set value * * * * comparison * * * size selector 
+9 * * * set spawn * * * redirector element * * * exec task 

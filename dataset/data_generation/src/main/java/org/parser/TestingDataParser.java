@@ -30,6 +30,7 @@ public class TestingDataParser extends ProjectParser {
     public List<Map<String, Object>> generateTestingData(boolean heuristic) throws IOException {
         for (String filePath : allJavaFiles) {
             if (filePath.contains("/src/test/")) continue;
+            if (filePath.contains("/src/tests/")) continue;
             ASTParser parser = ASTParserUtils.getASTParser(sourcepathEntries, encodings);
             String code = FileUtils.readFileToString(new File(filePath), StandardCharsets.UTF_8);
             parser.setSource(code.toCharArray());
@@ -39,6 +40,8 @@ public class TestingDataParser extends ProjectParser {
                 cu.accept(visitor);
                 List<MethodDeclaration> methods = visitor.getAllMethods();
                 for (MethodDeclaration methodDeclaration : methods) {
+                    if (methodDeclaration.getName().getIdentifier().startsWith("test")) continue;
+                    if (methodDeclaration.getName().getIdentifier().endsWith("Test")) continue;
                     MoveStaticMembersProcessor moveStaticMembersProcessor = new MoveStaticMembersProcessor();
                     MoveInstanceMethodProcessor moveInstanceMethodProcessor = new MoveInstanceMethodProcessor();
                     FeatureEnvyCandidate candidate;

@@ -104,7 +104,7 @@ def train():
     model_mcmc.add(Conv1D(128, 1, activation='tanh'))
     model_mcmc.add(Flatten())
 
-    output = merge.Concatenate()([model_name.output, model_dist.output, model_cbmc.output, model_mcmc.output])
+    output = merge.Concatenate()([model_name.output * 0.4, model_dist.output * 16, model_cbmc.output * 4, model_mcmc.output * 4])
     output = Dense(128, activation='tanh')(output)
     output = Dense(2, activation='sigmoid')(output)
     input_names = model_name.input

@@ -1,0 +1,7 @@
+Refactoring Type	Source Method	Target Class
+Move Method	org.apache.tools.ant.filters.FixCrLfFilter::setDestdir(org.apache.tools.ant.taskdefs.FixCRLF, java.io.File):void 	 org.apache.tools.ant.taskdefs.FixCRLF
+Move Method	org.apache.tools.ant.types.Environment::setOutputproperty(org.apache.tools.ant.taskdefs.Java, java.lang.String):void 	 org.apache.tools.ant.taskdefs.Java
+Move Method	org.apache.tools.ant.util.ClasspathUtils.Delegate::getLoaderId(org.apache.tools.ant.taskdefs.DefBase):java.lang.String 	 org.apache.tools.ant.taskdefs.DefBase
+Move Method	org.apache.tools.ant.filters.StripLineBreaks::addStripLineBreaks(org.apache.tools.ant.types.FilterChain):void 	 org.apache.tools.ant.types.FilterChain
+Move Method	org.apache.tools.ant.types.ZipScanner::setUpdate(org.apache.tools.ant.taskdefs.Zip, boolean):void 	 org.apache.tools.ant.taskdefs.Zip
+Move Method	org.apache.tools.ant.types.Comparison::setValue(org.apache.tools.ant.types.selectors.SizeSelector, long):void 	 org.apache.tools.ant.types.selectors.SizeSelector
