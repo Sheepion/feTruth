@@ -42,7 +42,7 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
 
     @Override
     public void detectAll(List<String> projects) throws Exception {
-        final String insertSQL = "INSERT INTO refactoring_miner(project_name, commit_id, refactor_description, " +
+        final String insertSQL = "INSERT INTO refactoring_miner(project_name, commit_id, refactoring_description, " +
                 "source_class_name, source_method_name, source_param_types, source_start_line, source_end_line, " +
                 "source_start_column, source_end_column, source_file_path, target_class_name, target_method_name, " +
                 "target_param_types, target_start_line, target_end_line, target_start_column, target_end_column, " +
