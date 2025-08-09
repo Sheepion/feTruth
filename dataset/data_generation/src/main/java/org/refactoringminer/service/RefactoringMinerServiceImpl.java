@@ -13,6 +13,8 @@ import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
 import org.util.GitTravellerUtils;
 import org.util.JDBCUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class RefactoringMinerServiceImpl implements RefactoringMinerService {
 
     private final String rootPath;
+    private final Logger logger = LoggerFactory.getLogger(RefactoringMinerServiceImpl.class);
 
     {
         ClassLoader classLoader = RefactoringMiner.class.getClassLoader();
@@ -37,7 +40,8 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
         } catch (IOException ignored) {
             throw new RuntimeException("can't locate config.properties");
         }
-        rootPath = props.getProperty("rootPath").endsWith("/") ? props.getProperty("rootPath") : props.getProperty("rootPath") + "/";
+        rootPath = props.getProperty("rootPath").endsWith("/") ? props.getProperty("rootPath")
+                : props.getProperty("rootPath") + "/";
     }
 
     @Override
@@ -46,7 +50,8 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
                 "source_class_name, source_method_name, source_param_types, source_start_line, source_end_line, " +
                 "source_start_column, source_end_column, source_file_path, target_class_name, target_method_name, " +
                 "target_param_types, target_start_line, target_end_line, target_start_column, target_end_column, " +
-                "target_file_path, target_original_class, target_original_path, mapped_element, filter_type, remote_url) " +
+                "target_file_path, target_original_class, target_original_path, mapped_element, filter_type, remote_url) "
+                +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         final String datasetPath = rootPath + "dataset/";
         Connection conn = JDBCUtils.getConnection();
@@ -56,14 +61,21 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
         GitHistoryRefactoringMiner detector;
         for (String project : projects) {
             String projectPath = datasetPath + project;
+            logger.info("Start to process project {} at {}", project, projectPath);
             try (Repository repo = gitService.openRepository(projectPath)) {
                 List<String> commits = GitTravellerUtils.getAllCommits(projectPath);
+                logger.info("Find {} commits in project {}", commits.size(), project);
                 String remoteUrl = GitTravellerUtils.getRemoteUrl(projectPath);
+                logger.info("Remote URL: {}", remoteUrl);
                 detector = new GitHistoryRefactoringMinerImpl();
                 for (String commit : commits) {
                     detector.detectAtEachCommit(repo, commit, new RefactoringHandler() {
                         @Override
                         public void handle(String commitId, UMLModelDiff modelDiff, List<Refactoring> refactorings) {
+                            if (refactorings.size() != 0) {
+                                logger.info("Find {} move method refactoring(s) on commit {}", refactorings.size(), commitId);
+                            }
+
                             for (Refactoring ref : refactorings) {
                                 try {
                                     MoveOperationRefactoring refactoring = (MoveOperationRefactoring) ref;
@@ -78,8 +90,8 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
                                     if (sourceMethod.getMethodParamTypes() != null)
                                         insertStmt.setString(6, sourceMethod.getMethodParamTypes());
                                     else
-                                        insertStmt.setString(6, sourceMethod.getParameterTypeList().stream().
-                                                map(UMLType::toString).collect(Collectors.joining(",")));
+                                        insertStmt.setString(6, sourceMethod.getParameterTypeList().stream()
+                                                .map(UMLType::toString).collect(Collectors.joining(",")));
                                     insertStmt.setInt(7, sourceMethod.getLocationInfo().getStartLine());
                                     insertStmt.setInt(8, sourceMethod.getLocationInfo().getEndLine());
                                     insertStmt.setInt(9, sourceMethod.getLocationInfo().getStartColumn());
@@ -90,26 +102,30 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
                                     if (targetMethod.getMethodParamTypes() != null)
                                         insertStmt.setString(14, targetMethod.getMethodParamTypes());
                                     else
-                                        insertStmt.setString(14, targetMethod.getParameterTypeList().stream().
-                                                map(UMLType::toString).collect(Collectors.joining(",")));
+                                        insertStmt.setString(14, targetMethod.getParameterTypeList().stream()
+                                                .map(UMLType::toString).collect(Collectors.joining(",")));
                                     insertStmt.setInt(15, targetMethod.getLocationInfo().getStartLine());
                                     insertStmt.setInt(16, targetMethod.getLocationInfo().getEndLine());
                                     insertStmt.setInt(17, targetMethod.getLocationInfo().getStartColumn());
                                     insertStmt.setInt(18, targetMethod.getLocationInfo().getEndColumn());
                                     insertStmt.setString(19, targetMethod.getLocationInfo().getFilePath());
-                                    insertStmt.setString(20, getOriginalClass(modelDiff, targetMethod.getClassName(), targetMethod.getLocationInfo().getFilePath()));
-                                    insertStmt.setString(21, getOriginalPath(modelDiff, targetMethod.getLocationInfo().getFilePath()));
+                                    insertStmt.setString(20, getOriginalClass(modelDiff, targetMethod.getClassName(),
+                                            targetMethod.getLocationInfo().getFilePath()));
+                                    insertStmt.setString(21,
+                                            getOriginalPath(modelDiff, targetMethod.getLocationInfo().getFilePath()));
                                     insertStmt.setString(22, mappings == null ? "" : mappings.toString());
                                     insertStmt.setString(23, refactoring.getFilterType());
                                     insertStmt.setString(24, remoteUrl + commitId);
                                     insertStmt.addBatch();
                                     insertStmt.executeBatch();
                                 } catch (SQLException ignored) {
+                                    logger.error("Error inserting refactoring: {}", ignored.getMessage());
                                 }
                             }
                             try {
                                 conn.commit();
                             } catch (SQLException ignored) {
+                                logger.error("Error committing refactoring: {}", ignored.getMessage());
                             }
                         }
 
