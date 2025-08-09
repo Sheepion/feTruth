@@ -53,7 +53,7 @@ public class RefactoringMinerServiceImpl implements RefactoringMinerService {
                 "target_file_path, target_original_class, target_original_path, mapped_element, filter_type, remote_url) "
                 +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        final String datasetPath = rootPath + "dataset/";
+        final String datasetPath = rootPath + "repos/";
         Connection conn = JDBCUtils.getConnection();
         conn.setAutoCommit(false);
         PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
